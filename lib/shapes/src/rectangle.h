@@ -1,5 +1,4 @@
-#ifndef H__RECTANGLE__H
-#define H__RECTANGLE__H
+#pragma once
 
 class Rectangle
 {
@@ -17,5 +16,3 @@ private:
     float m_fWidth;
     float m_fHeight;
 };
-
-#endif
