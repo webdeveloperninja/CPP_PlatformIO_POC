@@ -2,6 +2,21 @@
 #define ONBOARD_LED 2
 #include <iostream>
 #include "rectangle.h"
+#include "TestCase.h"
+
+class LedShouldTurnOn : public TestCase
+{
+public:
+  void onInit()
+  {
+    Serial.println("onInit");
+  }
+
+  void assertCase()
+  {
+    Serial.println("assertCase");
+  }
+};
 
 void setup()
 {
@@ -11,13 +26,9 @@ void setup()
 
 void loop()
 {
-  delay(1000);
-  digitalWrite(ONBOARD_LED, HIGH);
-  delay(100);
-  digitalWrite(ONBOARD_LED, LOW);
+  LedShouldTurnOn *pLedShouldTurnOn = new LedShouldTurnOn;
 
-  Rectangle rectA{5, 5};
-
-  Serial.println("Area of rectangle");
-  Serial.println(rectA.getArea());
+  pLedShouldTurnOn->onInit();
+  pLedShouldTurnOn->assertCase();
+  delay(5000);
 }
