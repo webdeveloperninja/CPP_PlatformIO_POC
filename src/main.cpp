@@ -1,27 +1,50 @@
 #include <Arduino.h>
-#define ONBOARD_LED 2
+#define PIN_2 2
 #include <iostream>
 #include "rectangle.h"
 #include "TestCase.h"
+#include "TestResult.h"
+
+int digitalReadOutputPin(uint8_t pin)
+{
+  uint8_t bit = digitalPinToBitMask(pin);
+  uint8_t port = digitalPinToPort(pin);
+  if (port == NOT_A_PIN)
+    return LOW;
+
+  return (*portOutputRegister(port) & bit) ? HIGH : LOW;
+}
 
 class LedShouldTurnOn : public TestCase
 {
 public:
   void onInit()
   {
-    Serial.println("onInit");
+    pinMode(PIN_2, OUTPUT);
+    digitalWrite(PIN_2, HIGH);
   }
 
-  void assertCase()
+  TESTRESULT assertCase()
   {
-    Serial.println("assertCase");
+    int pin2Voltage = digitalReadOutputPin(PIN_2);
+    TESTRESULT result;
+
+    if (pin2Voltage == HIGH)
+    {
+      result.hasFailed = false;
+    }
+    else
+    {
+      result.hasFailed = true;
+    }
+
+    return result;
   }
 };
 
 void setup()
 {
   Serial.begin(115200);
-  pinMode(ONBOARD_LED, OUTPUT);
 }
 
 void loop()
@@ -29,6 +52,10 @@ void loop()
   LedShouldTurnOn *pLedShouldTurnOn = new LedShouldTurnOn;
 
   pLedShouldTurnOn->onInit();
-  pLedShouldTurnOn->assertCase();
+  TESTRESULT result = pLedShouldTurnOn->assertCase();
+
+  Serial.println("Test failed?");
+  Serial.println(result.hasFailed);
+
   delay(5000);
 }

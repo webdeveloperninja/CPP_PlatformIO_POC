@@ -1,4 +1,5 @@
 #pragma once
+#include "TestResult.h"
 
 class TestCase
 {
@@ -6,5 +7,5 @@ public:
     ~TestCase();
 
     virtual void onInit();
-    virtual void assertCase();
+    virtual TESTRESULT assertCase();
 };
