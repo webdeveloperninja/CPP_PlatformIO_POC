@@ -1,11 +1,4 @@
 #pragma once
-#include "TestResult.h"
+#include <Arduino.h>
 
-class FlashStorageManager
-{
-public:
-    ~FlashStorageManager();
-
-    void write();
-    void read();
-};
+int writeFlash(std::string key, std::string &value);
