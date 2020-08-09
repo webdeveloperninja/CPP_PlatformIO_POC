@@ -8,11 +8,10 @@
 
 void setup()
 {
-  Serial.println("Setup");
-
   Serial.begin(115200);
   BLEManager *pBLEManager = new BLEManager;
-  pBLEManager->onInit();
+  std::string deviceName = "My ESP32";
+  pBLEManager->onInit(&deviceName);
 }
 
 void loop()

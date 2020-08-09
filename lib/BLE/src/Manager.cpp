@@ -5,10 +5,10 @@
 #include <iostream>
 #include <Arduino.h>
 
-#define SERVICE_UUID "4fafc201-1fb5-459e-8fcc-c5c9c331914b"
-#define CHARACTERISTIC_UUID "beb5483e-36e1-4688-b7f5-ea07361b26a8"
+#define DEVICE_SERVICE_UUID "4fafc201-1fb5-459e-8fcc-c5c9c331914b"
+#define CONFIGURATION_CHARACTERISTIC_UUID "beb5483e-36e1-4688-b7f5-ea07361b26a8"
 
-class MyCallbacks : public BLECharacteristicCallbacks
+class ConfigurationCharacteristicHandler : public BLECharacteristicCallbacks
 {
     void onWrite(BLECharacteristic *pCharacteristic)
     {
@@ -27,29 +27,21 @@ class MyCallbacks : public BLECharacteristicCallbacks
     }
 };
 
-void BLEManager::onInit()
+void BLEManager::onInit(std::string *pDeviceName)
 {
-    Serial.begin(115200);
+    BLEDevice::init(*pDeviceName);
+    pServer = BLEDevice::createServer();
 
-    Serial.println("1- Download and install an BLE scanner app in your phone");
-    Serial.println("2- Scan for BLE devices in the app");
-    Serial.println("3- Connect to MyESP32");
-    Serial.println("4- Go to CUSTOM CHARACTERISTIC in CUSTOM SERVICE and write something");
-    Serial.println("5- See the magic =)");
+    BLEService *pService = pServer->createService(DEVICE_SERVICE_UUID);
 
-    BLEDevice::init("MyESP32");
-    BLEServer *pServer = BLEDevice::createServer();
-
-    BLEService *pService = pServer->createService(SERVICE_UUID);
-
-    BLECharacteristic *pCharacteristic = pService->createCharacteristic(
-        CHARACTERISTIC_UUID,
+    BLECharacteristic *pConfigurationCharacteristic = pService->createCharacteristic(
+        CONFIGURATION_CHARACTERISTIC_UUID,
         BLECharacteristic::PROPERTY_READ |
             BLECharacteristic::PROPERTY_WRITE);
 
-    pCharacteristic->setCallbacks(new MyCallbacks());
+    pConfigurationCharacteristic->setCallbacks(new ConfigurationCharacteristicHandler());
 
-    pCharacteristic->setValue("Hello World");
+    pConfigurationCharacteristic->setValue("Hello World");
     pService->start();
 
     BLEAdvertising *pAdvertising = pServer->getAdvertising();
