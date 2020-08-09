@@ -1,7 +1,6 @@
 #include <Arduino.h>
 #define PIN_2 2
 #include <iostream>
-#include "rectangle.h"
 #include "TestCase.h"
 #include "TestResult.h"
 #include "Manager.h"
