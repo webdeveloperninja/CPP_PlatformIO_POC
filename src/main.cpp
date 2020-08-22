@@ -12,29 +12,19 @@ struct Configuration
   char name[10];
 };
 
+BLEManager *pBLEManager;
+
 void setup()
 {
-  EEPROM.begin(1024);
-
-  Serial.begin(115200);
-  Configuration config = {
-      "Rob"};
-
-  BLEManager *pBLEManager = new BLEManager;
   std::string deviceName = "My ESP32";
+  Serial.begin(115200);
+
+  pBLEManager = new BLEManager;
   pBLEManager->onInit(&deviceName);
-
-  int eeAddress = 0;
-  EEPROM.put(eeAddress, config);
-  EEPROM.commit();
-
-  Configuration customVar;
-  EEPROM.get(eeAddress, customVar);
-
-  Serial.print("Value");
-  Serial.println(customVar.name);
 }
 
 void loop()
 {
+  delay(3);
+  pBLEManager->beaconNotify();
 }
