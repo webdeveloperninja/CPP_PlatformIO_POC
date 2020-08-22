@@ -8,6 +8,8 @@
 #define DEVICE_SERVICE_UUID "4fafc201-1fb5-459e-8fcc-c5c9c331914b"
 #define CONFIGURATION_CHARACTERISTIC_UUID "beb5483e-36e1-4688-b7f5-ea07361b26a8"
 
+const int LED_PIN = 2;
+
 class ConfigurationCharacteristicHandler : public BLECharacteristicCallbacks
 {
     void onWrite(BLECharacteristic *pCharacteristic)
@@ -16,13 +18,19 @@ class ConfigurationCharacteristicHandler : public BLECharacteristicCallbacks
 
         if (value.length() > 0)
         {
-            Serial.println("*********");
-            Serial.print("New value: ");
-            for (int i = 0; i < value.length(); i++)
-                Serial.print(value[i]);
+            pinMode(LED_PIN, OUTPUT);
 
-            Serial.println();
-            Serial.println("*********");
+            if (value == "start_process")
+            {
+                Serial.print("Start process");
+                digitalWrite(LED_PIN, HIGH);
+            }
+
+            if (value == "stop_process")
+            {
+                Serial.print("Stop process");
+                digitalWrite(LED_PIN, LOW);
+            }
         }
     }
 };
