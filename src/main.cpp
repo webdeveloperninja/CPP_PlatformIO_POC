@@ -1,16 +1,7 @@
 #include <Arduino.h>
 #define PIN_2 2
 #include <iostream>
-#include "TestCase.h"
-#include "TestResult.h"
 #include "Manager.h"
-#include "FlashStorageManager.h"
-#include <EEPROM.h>
-
-struct Configuration
-{
-  char name[10];
-};
 
 BLEManager *pBLEManager;
 
