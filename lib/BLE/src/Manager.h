@@ -12,4 +12,5 @@ public:
 private:
     BLEServer *pServer;
     BLECharacteristic *pConfigurationCharacteristic;
+    BLECharacteristic *pGpio2Characteristic;
 };

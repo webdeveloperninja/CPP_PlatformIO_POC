@@ -7,8 +7,19 @@
 
 #define DEVICE_SERVICE_UUID "4fafc201-1fb5-459e-8fcc-c5c9c331914b"
 #define CONFIGURATION_CHARACTERISTIC_UUID "beb5483e-36e1-4688-b7f5-ea07361b26a8"
+#define GPIO2_CHARACTERISTIC_UUID "beb5483e-36e1-4681-b7f5-ea07361b26a2"
 
 const int LED_PIN = 2;
+
+int digitalReadOutputPin(uint8_t pin)
+{
+    uint8_t bit = digitalPinToBitMask(pin);
+    uint8_t port = digitalPinToPort(pin);
+    if (port == NOT_A_PIN)
+        return LOW;
+
+    return (*portOutputRegister(port) & bit) ? HIGH : LOW;
+}
 
 class ConfigurationCharacteristicHandler : public BLECharacteristicCallbacks
 {
@@ -49,8 +60,14 @@ void BLEManager::onInit(std::string *pDeviceName)
             BLECharacteristic::PROPERTY_NOTIFY |
             BLECharacteristic::PROPERTY_INDICATE);
 
+    pGpio2Characteristic = pService->createCharacteristic(
+        GPIO2_CHARACTERISTIC_UUID,
+        BLECharacteristic::PROPERTY_READ |
+            BLECharacteristic::PROPERTY_WRITE |
+            BLECharacteristic::PROPERTY_NOTIFY |
+            BLECharacteristic::PROPERTY_INDICATE);
+
     pConfigurationCharacteristic->setCallbacks(new ConfigurationCharacteristicHandler());
-    pConfigurationCharacteristic->setValue("Hello World");
 
     pService->start();
 
@@ -60,5 +77,9 @@ void BLEManager::onInit(std::string *pDeviceName)
 
 void BLEManager::beaconNotify()
 {
-    pConfigurationCharacteristic->notify();
+    int pin2Voltage = digitalReadOutputPin(LED_PIN);
+    String payload = String(pin2Voltage);
+
+    pGpio2Characteristic->setValue(payload.c_str());
+    pGpio2Characteristic->notify();
 }
