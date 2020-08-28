@@ -5,6 +5,16 @@
 
 BLEManager *pBLEManager;
 
+int digitalReadOutputPin(uint8_t pin)
+{
+  uint8_t bit = digitalPinToBitMask(pin);
+  uint8_t port = digitalPinToPort(pin);
+  if (port == NOT_A_PIN)
+    return LOW;
+
+  return (*portOutputRegister(port) & bit) ? HIGH : LOW;
+}
+
 void setup()
 {
   std::string deviceName = "My ESP32";
@@ -17,5 +27,10 @@ void setup()
 void loop()
 {
   delay(3);
-  pBLEManager->beaconNotify();
+
+  int pin2Voltage = digitalReadOutputPin(2);
+  NotifyPayload payload;
+  payload.pin2Voltage = pin2Voltage;
+
+  pBLEManager->beaconNotify(payload);
 }

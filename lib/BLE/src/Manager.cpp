@@ -11,16 +11,6 @@
 
 const int LED_PIN = 2;
 
-int digitalReadOutputPin(uint8_t pin)
-{
-    uint8_t bit = digitalPinToBitMask(pin);
-    uint8_t port = digitalPinToPort(pin);
-    if (port == NOT_A_PIN)
-        return LOW;
-
-    return (*portOutputRegister(port) & bit) ? HIGH : LOW;
-}
-
 class ConfigurationCharacteristicHandler : public BLECharacteristicCallbacks
 {
     void onWrite(BLECharacteristic *pCharacteristic)
@@ -75,10 +65,9 @@ void BLEManager::onInit(std::string *pDeviceName)
     pAdvertising->start();
 }
 
-void BLEManager::beaconNotify()
+void BLEManager::beaconNotify(NotifyPayload notifyPayload)
 {
-    int pin2Voltage = digitalReadOutputPin(LED_PIN);
-    String payload = String(pin2Voltage);
+    String payload = String(notifyPayload.pin2Voltage);
 
     pGpio2Characteristic->setValue(payload.c_str());
     pGpio2Characteristic->notify();
