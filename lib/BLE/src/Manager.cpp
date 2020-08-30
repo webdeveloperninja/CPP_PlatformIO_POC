@@ -6,12 +6,11 @@
 #include <Arduino.h>
 
 #define DEVICE_SERVICE_UUID "4fafc201-1fb5-459e-8fcc-c5c9c331914b"
-#define CONFIGURATION_CHARACTERISTIC_UUID "beb5483e-36e1-4688-b7f5-ea07361b26a8"
-#define GPIO2_CHARACTERISTIC_UUID "beb5483e-36e1-4681-b7f5-ea07361b26a2"
 
-const int LED_PIN = 2;
+#define GPIO2_CHARACTERISTIC_UUID "beb5483e-36e1-4688-b7f5-ea07361b26a8"
+#define GPIO4_CHARACTERISTIC_UUID "7a6a8cb2-2413-4c80-a285-4af758cd0223"
 
-class ConfigurationCharacteristicHandler : public BLECharacteristicCallbacks
+class Gpio2Handler : public BLECharacteristicCallbacks
 {
     void onWrite(BLECharacteristic *pCharacteristic)
     {
@@ -19,18 +18,39 @@ class ConfigurationCharacteristicHandler : public BLECharacteristicCallbacks
 
         if (value.length() > 0)
         {
-            pinMode(LED_PIN, OUTPUT);
-
             if (value == "start_process")
             {
                 Serial.print("Start process");
-                digitalWrite(LED_PIN, HIGH);
+                digitalWrite(2, HIGH);
             }
 
             if (value == "stop_process")
             {
                 Serial.print("Stop process");
-                digitalWrite(LED_PIN, LOW);
+                digitalWrite(2, LOW);
+            }
+        }
+    }
+};
+
+class Gpio4Handler : public BLECharacteristicCallbacks
+{
+    void onWrite(BLECharacteristic *pCharacteristic)
+    {
+        std::string value = pCharacteristic->getValue();
+
+        if (value.length() > 0)
+        {
+            if (value == "start_process")
+            {
+                Serial.print("Start process");
+                digitalWrite(4, HIGH);
+            }
+
+            if (value == "stop_process")
+            {
+                Serial.print("Stop process");
+                digitalWrite(4, LOW);
             }
         }
     }
@@ -43,13 +63,6 @@ void BLEManager::onInit(std::string *pDeviceName)
 
     BLEService *pService = pServer->createService(DEVICE_SERVICE_UUID);
 
-    pConfigurationCharacteristic = pService->createCharacteristic(
-        CONFIGURATION_CHARACTERISTIC_UUID,
-        BLECharacteristic::PROPERTY_READ |
-            BLECharacteristic::PROPERTY_WRITE |
-            BLECharacteristic::PROPERTY_NOTIFY |
-            BLECharacteristic::PROPERTY_INDICATE);
-
     pGpio2Characteristic = pService->createCharacteristic(
         GPIO2_CHARACTERISTIC_UUID,
         BLECharacteristic::PROPERTY_READ |
@@ -57,7 +70,15 @@ void BLEManager::onInit(std::string *pDeviceName)
             BLECharacteristic::PROPERTY_NOTIFY |
             BLECharacteristic::PROPERTY_INDICATE);
 
-    pConfigurationCharacteristic->setCallbacks(new ConfigurationCharacteristicHandler());
+    pGpio4Characteristic = pService->createCharacteristic(
+        GPIO4_CHARACTERISTIC_UUID,
+        BLECharacteristic::PROPERTY_READ |
+            BLECharacteristic::PROPERTY_WRITE |
+            BLECharacteristic::PROPERTY_NOTIFY |
+            BLECharacteristic::PROPERTY_INDICATE);
+
+    pGpio2Characteristic->setCallbacks(new Gpio2Handler());
+    pGpio4Characteristic->setCallbacks(new Gpio4Handler());
 
     pService->start();
 
@@ -67,8 +88,11 @@ void BLEManager::onInit(std::string *pDeviceName)
 
 void BLEManager::beaconNotify(NotifyPayload notifyPayload)
 {
-    String payload = String(notifyPayload.pin2Voltage);
+    String pin2payload = String(notifyPayload.pin2Voltage);
+    String pin4payload = String(notifyPayload.pin4Voltage);
 
-    pGpio2Characteristic->setValue(payload.c_str());
+    pGpio2Characteristic->setValue(pin2payload.c_str());
     pGpio2Characteristic->notify();
+    pGpio4Characteristic->setValue(pin4payload.c_str());
+    pGpio4Characteristic->notify();
 }

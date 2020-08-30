@@ -6,6 +6,7 @@
 struct NotifyPayload
 {
     int pin2Voltage;
+    int pin4Voltage;
 };
 
 class BLEManager
@@ -16,6 +17,6 @@ public:
 
 private:
     BLEServer *pServer;
-    BLECharacteristic *pConfigurationCharacteristic;
     BLECharacteristic *pGpio2Characteristic;
+    BLECharacteristic *pGpio4Characteristic;
 };
